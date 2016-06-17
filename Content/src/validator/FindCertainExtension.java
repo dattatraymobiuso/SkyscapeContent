@@ -1,8 +1,11 @@
 package validator;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,12 +41,14 @@ public class FindCertainExtension {
 		List<File> files = (List<File>) FileUtils.listFiles(dir, extensions,
 				true);
 		for (File file : files) {
-			System.out.println(file.getCanonicalPath().trim() + "::"
-					+ file.getName());
-			htmlFileList.add(file.getCanonicalPath().trim() + "::"
+//			System.out.println(file.getCanonicalPath().trim() + ","
+//					+ file.getName());
+			htmlFileList.add(file.getCanonicalPath().trim() + ","
 					+ file.getName());
 
 		}
+		Collections.sort(htmlFileList);
+		
 		System.out.println("Total HTML files " + htmlFileList.size());
 		System.out
 				.println("----------------------------------------------------------------------------------");
@@ -63,14 +68,8 @@ public class FindCertainExtension {
 			String htmlFileName = getFileName(File);
 
 			File input = new File(htmlFile);
-			try {
-				doc = Jsoup.parse(input, "UTF-8");
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			Elements links = doc.select("a");
+			doc = Jsoup.parse(input, "UTF-8");
+						Elements links = doc.select("a");
 			for (Element link : links) {
 				String linkHref = link.attr("href");
 				// System.out.println(htmlFile+":::"+linkHref);
@@ -82,50 +81,69 @@ public class FindCertainExtension {
 						linkHref = linkHref.replace("www", "http://www");
 						noProtocol = true;
 					}
-					int responseCode = ReusableCode
-							.getResponseCodeInt(linkHref);
-					results.add(htmlFile + "::" + linkHref + "::External"
-							+ "::" + noProtocol + "::" + responseCode);
+					int responseCode = ReusableCode.getResponseCodeInt(linkHref);
+					results.add("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::External"
+							+ "," + "protocolStatus::"+noProtocol + "," + "result::"+getExternalURLStatus(responseCode) + "," + "error::"+responseCode);
+					// Pushing status as file, anchor, anchorType, protocolStatus, result, error
 					if (noProtocol == true)
-						noprotocol.add(htmlFile + "::" + linkHref
-								+ "::External" + "::" + noProtocol + "::"
-								+ responseCode);
-					// System.out.println(htmlFile+ " : " +linkHref +
-					// " : External Link :"
-					// + responseCode);
+						noprotocol.add("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::External"
+								+ "," + "protocolStatus::"+noProtocol + "," + "result::"+getExternalURLStatus(responseCode) + "," + "error::"+responseCode);
+					// Pushing status as html file, anchor, anchorType, protocolStatus, result, error
+					 System.out.println("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::External"
+								+ "," + "protocolStatus::"+noProtocol + "," + "result::"+getExternalURLStatus(responseCode) + "," + "error::"+responseCode);
 
 				} else if (linkHref.startsWith("#")) {
 
-					boolean iSIdExist = getIDStatus(linkHref, htmlFile, doc);
-					results.add(htmlFile + "::" + linkHref + "::" + "Internal"
-							+ "::" + "NA" + "::" + iSIdExist);
-					// System.out.println(htmlFile+ ":Internal:"+"NA");
+					boolean iSAnchorExist = getIDStatus(linkHref, htmlFile, doc);
+					results.add("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::Internal-AnchorSameHTML"
+							+ "," + "protocolStatus::NA" + "result::"+getTestStatus(iSAnchorExist) + "," + "error::"+"");
+					// Pushing status as html file, anchor, anchorType, protocolStatus, result, error
+					
+					System.out.println("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::Internal-AnchorSameHTML"
+							+ "," + "protocolStatus::NA" + "result::"+getTestStatus(iSAnchorExist) + "," + "error::"+"");
 
 				} else if ((linkHref.startsWith("../"))
 						&& ((linkHref.endsWith(".htm")))
 						|| (linkHref.endsWith(".html"))) {
-					System.out
-							.println(iSOtherHTMLFileExits(htmlFile, linkHref));
-					results.add(htmlFile + "::" + linkHref + "::" + "Internal"
-							+ "::" + "NA" + "::"
-							+ iSOtherHTMLFileExits(htmlFile, linkHref));
-					System.out.println(htmlFile + "::" + linkHref + "::"
-							+ "Internal" + "::" + "NA" + "::"
-							+ iSOtherHTMLFileExits(htmlFile, linkHref));
+				
+					results.add("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::Internal-PointsOtherHTML"
+							+ "," + "protocolStatus::NA" + "result::"+iSOtherHTMLFileExits(htmlFile, linkHref) + "," + "error::"+"");
+					
+					// Pushing status as html file, anchor, anchorType, protocolStatus, result, error
+					System.out.println("file::"+htmlFile + "," + "anchor::"+linkHref +","+ "anchorType::Internal-PointsOtherHTML"
+							+ "," + "protocolStatus::NA" + "result::"+iSOtherHTMLFileExits(htmlFile, linkHref) + "," + "error::"+"");
 				} else if ((linkHref.startsWith("../"))) {
-					System.out
-							.println("You are inside cross referance link section ");
-					results.add(htmlFile + "::" + linkHref + "::" + "Internal"
-							+ "::" + "NA" + "::"
+					
+					results.add(htmlFile + "," + linkHref + "," + "Internal-AnchorOtherHTML" + "," + "NA" + ","	+ iSAnchorInOtherHTMLFileExits(htmlFile, linkHref));
+					
+					// Pushing status as html file, anchor, anchorType, protocolStatus, result, error
+					System.out.println(htmlFile + "," + linkHref + "," + "Internal-AnchorOtherHTML"
+							+ "," + "NA" + ","
 							+ iSAnchorInOtherHTMLFileExits(htmlFile, linkHref));
-					System.out.println(htmlFile + "::" + linkHref + "::"+ "Internal" + "::" + "NA" + "::"+ iSAnchorInOtherHTMLFileExits(htmlFile, linkHref));
-					System.out.println("Stop");
+					
+					
+					
+				}else {
+					results.add(htmlFile + "," + linkHref + "," + "No Tested"
+							+ "," + "NA");
+					System.out.println(htmlFile + "," + linkHref + "," + "No Tested"
+							+ "," + "NA");
 				}
 
 			}
 
 		}
 
+	}
+
+	private String getExternalURLStatus(int responseCode) {
+		String status;
+		if(responseCode==200){
+			status = "Pass";
+		}else{
+			status = "Fail";
+		}
+		return status;
 	}
 
 	private String getParentDirectory(String htmlFile) {
@@ -139,22 +157,29 @@ public class FindCertainExtension {
 		boolean iSFileExist = false;
 		String parentDiretory = getParentDirectory(htmlFile);
 		String urlFilePath = getNewPath(parentDiretory, linkHref);
-		System.out.println(urlFilePath);
 		iSFileExist = checkFileExistance(new File(urlFilePath));
 		return iSFileExist;
 	}
 
 	private boolean iSAnchorInOtherHTMLFileExits(String htmlFile,
-			String linkHref) throws IOException {
+		String linkHref) throws IOException {
+		
+		boolean iSFileExist = false;
 		boolean iSAnchorInFileExist = false;
-
+		boolean status = false;
 		String parentDiretory = getParentDirectory(htmlFile);
 		String urlFullFilePath = getNewPath(parentDiretory, linkHref);
 		// System.out.println(urlFilePath);
 		String anchor = getAnchorFromURL(urlFullFilePath);
 		String fileURL = getFileURL(urlFullFilePath);
+		iSFileExist = checkFileExistance(new File(fileURL));
+		if(iSFileExist==true)
 		iSAnchorInFileExist = checkAnchorInFile(new File(fileURL), anchor);
-		return iSAnchorInFileExist;
+		if(iSFileExist==true && iSAnchorInFileExist==true){
+			
+			status = true;
+		}
+		return status;
 	}
 
 	private String getFileURL(String urlFullFilePath) {
@@ -175,6 +200,7 @@ public class FindCertainExtension {
 
 	private boolean checkAnchorInFile(File file, String anchor)
 			throws IOException {
+		
 		boolean status = false;
 		Document doc2 = Jsoup.parse(file, "UTF-8");
 		Elements e2 = doc2.getElementsByAttributeValue("id", anchor);
@@ -214,7 +240,7 @@ public class FindCertainExtension {
 			// System.out.println(linkHref);
 		}
 		el = doc.getElementById(linkHref);
-		System.out.println("Null issue : " + file + " : " + linkHref);
+		
 		if (el != null) {
 			status = true;
 		} else {
@@ -224,8 +250,13 @@ public class FindCertainExtension {
 	}
 
 	@AfterTest
-	public static void printResults() {
-
+	public static void printResults() throws IOException {
+		
+		FileWriter writer = new FileWriter("output.txt"); 
+		for(String str: htmlFileList) {
+		  writer.write(str+"\n");
+		}
+		writer.close();
 		System.out
 				.println("--------------------------------Total Results--------------------------------------");
 
@@ -257,12 +288,26 @@ public class FindCertainExtension {
 	}
 
 	private String getFilePath(String getFile) {
-		String temp[] = getFile.split("::");
+		String temp[] = getFile.split(",");
 		return temp[0].trim();
 	}
 
 	private String getFileName(String getFile) {
-		String temp[] = getFile.split("::");
+		String temp[] = getFile.split(",");
 		return temp[1].trim();
 	}
+	
+	
+	private String getTestStatus(boolean value){
+		
+		String status;
+		if(value==true){
+			status = "Pass";
+		}else{
+			status = "Fail";
+		}
+		return status;
+		
+	}
+	
 }
