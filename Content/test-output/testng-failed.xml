@@ -6,6 +6,7 @@
       <class name="validator.FindCertainExtension">
         <methods>
           <include name="getHTMLFiles"/>
+          <include name="downloadRequiredZip"/>
           <include name="printResults"/>
           <include name="getAndVerifyLinksFromHTML"/>
         </methods>

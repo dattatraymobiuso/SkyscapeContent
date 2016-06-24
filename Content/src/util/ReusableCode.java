@@ -1,14 +1,89 @@
 package util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-public class ReusableCode {
+import org.testng.Assert;
 
+public class ReusableCode {
 	
+	
+	
+	
+public static void deleteExistingData(String filePath){
+		
+		File directory = new File(filePath);
+		 
+    	//make sure directory exists
+    	if(!directory.exists()){
+ 
+           System.out.println("Directory does not exist.");
+           directory.mkdir();
+ 
+        }else{
+ 
+           try{
+        	   
+               delete(directory, filePath);
+        	
+           }catch(IOException e){
+               e.printStackTrace();
+               System.exit(0);
+           }
+        }
+  
+    	Assert.assertTrue(directory.exists(), "Downloads folder is not available in the project");
+	}
+
+   public static void delete(File file, String fileSource)
+    	throws IOException{
+ 
+    	if(file.isDirectory()){
+ 
+    		//directory is empty, then delete it
+    		if(file.list().length==0){
+    			 File mainFolder = new File(fileSource);  
+        		 if(!(file.equals(mainFolder))){  
+    		   file.delete();
+    		   System.out.println("Directory is deleted 1 : " 
+                                                 + file.getAbsolutePath());
+    			}
+    		}else{
+    			
+    		   //list all the directory contents
+        	   String files[] = file.list();
+     
+        	   for (String temp : files) {
+        	      //construct the file structure
+        	      File fileDelete = new File(file, temp);
+        		 
+        	      //recursive delete
+        	     delete(fileDelete, fileSource);
+        	   }
+        		
+        	   //check the directory again, if empty then delete it
+        	   if(file.list().length==0){
+        		 File mainFolder = new File(fileSource);  
+        		 if(!(file.equals(mainFolder))){  
+           	     file.delete();
+        	     System.out.println("Directory is deleted 2 : " 
+                                                  + file.getAbsolutePath());
+        		 }
+        		 }
+        		 
+        		 
+    		}
+    		
+    	}else{
+    		//if file, then delete it
+    		file.delete();
+    		System.out.println("File is deleted : " + file.getAbsolutePath());
+    	}
+    }
 public boolean getResponseCode(String url) throws InterruptedException {
 
 	boolean isValid = false;
@@ -56,5 +131,7 @@ public static int getResponseCodeInt(String url) throws InterruptedException, IO
 	}
 	return 0;
 }
+
+
 
 }
