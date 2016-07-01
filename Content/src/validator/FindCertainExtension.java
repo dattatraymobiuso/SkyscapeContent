@@ -60,10 +60,11 @@ public class FindCertainExtension {
 	public static List<String> results = null;
 	public static List<String> noprotocol = null;
 	public static List<String> thead = new ArrayList<String>();
-	static String file = "File_Name";
+	static String file = "File Name";
+	static String topic_name = "Topic";
 	static String anchor = "Anchor";
-	static String anchor_type = "Anchor_Type";
-	static String protocol_status = "Protocol_Status";
+	static String anchor_type = "Anchor Type";
+	static String protocol_status = "Protocol\nStatus";
 	static String result = "Result";
 	static String comment = "Comment";
 	static String htmlFileName = "report/Result.html";
@@ -81,61 +82,63 @@ public class FindCertainExtension {
 	static File fullProductManifestfile;
 	static String fullProductZipUrl;
 	static String fullProductZipPath;
-    static String  mediaUrl;
+//    static String  mediaUrl;
+	  static String  mediaUrl="http://download.skyscape.com/download/tabers22/1.0/";
     
     static String sourceReport="report";
     static String destinationReport="logs";
     
 	
-    @Test(description = "Download zip content for", dataProvider = "getDownloadParameteres", priority=0)
-	public void downloadRequiredZip(String TestDataId, String productName, String zipType,String baseURL,
-			String UUID) throws Exception {
-    	product = productName;
-    	ReusableCode.deleteExistingData(fileSource);
-		String productManifestName = productName+".manifest";
-		String productManifestUrl = formURL(baseURL, UUID, productManifestName);
-		String manifestFilePath = fileSource + "/" + productManifestName;
-		productManifestfile = new File(manifestFilePath);
-		
-		boolean checkProductManifestExistance = exists(productManifestUrl);
-		Assert.assertTrue(checkProductManifestExistance, productManifestName+" file is not available on server");
-		
-		downloadTitleManifest(productManifestUrl, productManifestfile, manifestFilePath, productManifestName);
-		
-		Object[] titleManifestData = readInformationFromManifest(manifestFilePath);
-		
-		String currentVersion=(String) titleManifestData[1];
-		String sampleZipName=(String) titleManifestData[2];
-		mediaUrl = (String) titleManifestData[3];		
-		String zip;
-		if(zipType.equalsIgnoreCase(zipType)){
-		zip = productName + "." + sampleZipName + ".zip";
-		}else{
-		zip = productName + "." + currentVersion + ".zip";
-		}
-			
-		String zipPath = fileSource + "/" + zip;
-		zipFilePath = new File(zipPath);
-		String zipUrl = baseURL + "/" + UUID + "/" + zip;
-			
-		Assert.assertTrue(exists(zipUrl), zip+" file is not available on server");
-		
-		if (!zipFilePath.exists()) {
-			
-		downloadZip(zipUrl,zipFilePath,  zipPath, zip);
-		unzip(zipPath);
-			
-	} else {
-			System.out.println(zip + " already downloaded");
-		}
-	}	
-   
-	@Test(description = "Search all HTML files to test",priority=1, dependsOnMethods={"downloadRequiredZip"})
+//    @Test(description = "Download zip content for", dataProvider = "getDownloadParameteres", priority=0)
+//	public void downloadRequiredZip(String TestDataId, String productName, String zipType,String baseURL,
+//			String UUID) throws Exception {
+//    	product = productName;
+//    	ReusableCode.deleteExistingData(fileSource);
+//		String productManifestName = productName+".manifest";
+//		String productManifestUrl = formURL(baseURL, UUID, productManifestName);
+//		String manifestFilePath = fileSource + "/" + productManifestName;
+//		productManifestfile = new File(manifestFilePath);
+//		
+//		boolean checkProductManifestExistance = exists(productManifestUrl);
+//		Assert.assertTrue(checkProductManifestExistance, productManifestName+" file is not available on server");
+//		
+//		downloadTitleManifest(productManifestUrl, productManifestfile, manifestFilePath, productManifestName);
+//		
+//		Object[] titleManifestData = readInformationFromManifest(manifestFilePath);
+//		
+//		String currentVersion=(String) titleManifestData[1];
+//		String sampleZipName=(String) titleManifestData[2];
+//		mediaUrl = (String) titleManifestData[3];		
+//		String zip;
+//		if(zipType.equalsIgnoreCase(zipType)){
+//		zip = productName + "." + sampleZipName + ".zip";
+//		}else{
+//		zip = productName + "." + currentVersion + ".zip";
+//		}
+//			
+//		String zipPath = fileSource + "/" + zip;
+//		zipFilePath = new File(zipPath);
+//		String zipUrl = baseURL + "/" + UUID + "/" + zip;
+//			
+//		Assert.assertTrue(exists(zipUrl), zip+" file is not available on server");
+//		
+//		if (!zipFilePath.exists()) {
+//			
+//		downloadZip(zipUrl,zipFilePath,  zipPath, zip);
+//		unzip(zipPath);
+//			
+//	} else {
+//			System.out.println(zip + " already downloaded");
+//		}
+//	}	
+  
+	@Test(description = "Search all HTML files to test",priority=1)
 	public void getHTMLFiles() throws IOException {
 		htmlFileList = new ArrayList<String>();
 		results = new ArrayList<String>();
 		noprotocol = new ArrayList<String>();
 		thead.add(file);
+		thead.add(topic_name);
 		thead.add(anchor);
 		thead.add(anchor_type);
 		thead.add(protocol_status);
@@ -151,8 +154,9 @@ public class FindCertainExtension {
 		for (File file : files) {
 			// System.out.println(file.getCanonicalPath().trim() + ","
 			// + file.getName());
-			htmlFileList.add(file.getCanonicalPath().trim() + ","
-					+ file.getName());
+//			htmlFileList.add(file.getCanonicalPath().trim() + ","
+//					+ file.getName());
+			htmlFileList.add(file.getCanonicalPath().trim());
 
 		}
 		Collections.sort(htmlFileList);
@@ -162,7 +166,7 @@ public class FindCertainExtension {
 				.println("----------------------------------------------------------------------------------");
 	}
 
-	@Test(description="Checking all href links", priority=2, dependsOnMethods={"downloadRequiredZip", "getHTMLFiles"})
+	@Test(description="Checking all href links", priority=2)
 	public void getAndVerifyLinksFromHTML() throws InterruptedException,
 			IOException {
 
@@ -171,34 +175,38 @@ public class FindCertainExtension {
 
 		for (int i = 0; i < htmlFileList.size(); i++) {
 			Document doc = null;
-			String File = htmlFileList.get(i).trim();
-			String htmlFile = getFilePath(File);
-			getFileName(File);
+			String htmlFile = htmlFileList.get(i).trim();
+//			String htmlFile = getFilePath(File);
+//			getFileName(File);
 			File input = new File(htmlFile);
 			String htmlSplittedPath = getRequiredFilePath(input, fileSource);
-
+			////
 			doc = Jsoup.parse(input, "UTF-8");
 			Elements links = doc.select("a");
-			System.out.println("Element :"+links.size());
+			//System.out.println("Element :"+links.size());
 			for (Element link : links) {
 				String linkHref = link.attr("href");
+				String topic = link.text();
 				if (!linkHref.isEmpty()) {
 					// System.out.println(htmlFile+"::"+":"+linkHref);
 					boolean noProtocol = false;
 					if (linkHref.startsWith("http")
 							|| linkHref.startsWith("https")
 							|| linkHref.startsWith("www")) {
-
+						String proStatus = "";
 						if (linkHref.startsWith("www")) {
 							linkHref = linkHref.replace("www", "http://www");
 							noProtocol = true;
+							proStatus = "Protocol issue";
 						}
+												
 						int responseCode = ReusableCode
 								.getResponseCodeInt(linkHref);
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + ""+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::" + "External link" + ","
-								+ "protocol_status::" + noProtocol + ","
+								+ "protocol_status::" + proStatus + ","
 								+ "result" + "::"
 								+ getExternalURLStatus(responseCode) + ","
 								+ "error" + "::" + getResponseCodeIfFail(responseCode));
@@ -217,18 +225,19 @@ public class FindCertainExtension {
 
 						
 						boolean isFileExist = checkFileExistance(input);
-						boolean iSAnchorExist = getIDStatus(linkHref, htmlFile,
+						boolean isAnchorExist = getIDStatus(linkHref, htmlFile,
 								doc);
 						
-						Object[] status = getTestStatus(isFileExist, iSAnchorExist);
+						Object[] status = getTestStatus(isFileExist, isAnchorExist);
 						String result = (String) status[0];
 						String error = (String) status[1];
 						
 						
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::"
-								+ "Internal-Anchor On Same HTML" + ","
+								+ "Anchor On Same HTML" + ","
 								+ "protocol_status" + "::" + "NA" + ","
 								+ "result" + "::"
 								+ result + "," + "error"
@@ -245,9 +254,10 @@ public class FindCertainExtension {
 						String error = (String) status[1];
 						
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::"
-								+ "Internal-Link Points Other HTML" + ","
+								+ "Points Other HTML" + ","
 								+ "protocol_status" + "::" + "NA" + ","
 								+ "result" + "::"
 								+ result + ","
@@ -264,9 +274,10 @@ public class FindCertainExtension {
 						String result = (String) status[0];
 						String error = (String) status[1];
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::"
-								+ "Internal-Points Other HTML Anchor" + ","
+								+ "Points Other HTML Anchor" + ","
 								+ "protocol_status" + "::" + "NA" + ","
 								+ "result" + "::"
 								+ result
@@ -281,14 +292,31 @@ public class FindCertainExtension {
 						String mediaLink = formLink(linkHref, mediaUrl); 
 						int responseCode = ReusableCode.getResponseCodeInt(mediaLink);
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::" + "File on server" + ","
 								+ "protocol_status" + "::" + "NA" + ","
 								+ "result" + "::" + getExternalURLStatus(responseCode) + "," + "error" + "::"
 								+ getResponseCodeIfFail(responseCode));
 
-					} else {
+					}else if(linkHref.trim().startsWith("popup:")){
+					boolean isFileExist = checkFileExistance(input);
+					String anchorId = getProperPopupAnchor(linkHref);	
+					boolean iSAnchorExist = getIDStatus(anchorId, htmlFile,	doc);
+					Object[] status = getTestStatus(isFileExist, iSAnchorExist);
+					String result = (String) status[0];
+					String error = (String) status[1];
+					results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
+								+ anchor + "::" + "" + linkHref + ","
+								+ anchor_type + "::" + "Pop-up" + ","
+								+ "protocol_status" + "::" + "NA" + ","
+								+ result + "::" + "No" + "," + "error" + "::"
+								+ error);
+						
+					}else {
 						results.add(file + "::" + "" + htmlSplittedPath + ","
+								+ topic_name + "::" + topic+ ","
 								+ anchor + "::" + "" + linkHref + ","
 								+ anchor_type + "::" + "Not Tested" + ","
 								+ "protocol_status" + "::" + "NA" + ","
@@ -299,8 +327,10 @@ public class FindCertainExtension {
 
 					}
 
-				}else{
+				}
+				else{
 				results.add(file + "::" + "" + htmlSplittedPath + ","
+						+ topic_name + "::" + ""+ ","
 						+ anchor + "::" + "" + linkHref + ","
 						+ anchor_type + "::"
 						+ "No href" + ","
@@ -321,6 +351,18 @@ public class FindCertainExtension {
 //			}
 //		return status;
 //	}
+
+	private String getProperPopupAnchor(String linkHref) {
+		String id="";
+		if(linkHref.contains(":")){
+		String[] temp = linkHref.split(":");
+		if(temp.length>0){
+			id = temp[1];	
+		}
+			
+		}
+		return id;
+	}
 
 	private String formLink(String linkHref, String url) {
 		String part2 = null;
@@ -552,6 +594,40 @@ public class FindCertainExtension {
 		}
 		return status;
 	}
+	
+	
+	private boolean getPopupIDStatus(String linkHref, String file, Document doc) {
+		boolean status = false;
+		Element el;
+		if (linkHref.startsWith("popup:#")) {
+			// System.out.println(linkHref);
+			linkHref = removeChar(linkHref, '#');
+			// System.out.println(linkHref);
+		}
+		
+		Document doc2 = Jsoup.parse(file, "UTF-8");
+		Elements e2 = doc2.getElementsByAttributeValue("id", anchor);
+		if (e2.size() >= 1) {
+			status = true;
+		} else {
+			Elements e3 = doc2.getElementsByAttributeValue("name", anchor);
+			if (e3.size() >= 1) {
+				status = true;
+			} else {
+				status = false;
+			}
+
+		}
+		el = doc.getElementById(linkHref);
+
+		if (el != null) {
+			status = true;
+		} else {
+			status = false;
+		}
+		return status;
+	}
+	
 
 	@SuppressWarnings("unchecked")
 	@AfterTest
@@ -569,7 +645,7 @@ public class FindCertainExtension {
 		head.add(new Tag("link",
 				"rel=stylesheet type=text/css href=./js/styles.css"));
 		head.add(new Tag("script",
-				"src=https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"));
+				"src=./js/jquery.min.js"));
 		head.add(new Tag("script", "src=./js/customscript.js"));
 
 		Tag title = new Tag("title");
@@ -589,13 +665,14 @@ public class FindCertainExtension {
 		p1.add("<button id='btn1' type='button' class='btn btn-success'><span id='show'>Show Fail</span></button>");
 		main.add(p1);
 		Tag table = new Tag("table",
-				"id=result border=1 cellpadding=3 cellspacing=0 width=500");
+				"id=result border=1 cellpadding=3 cellspacing=0");
 		Tag theadTag = new Tag("thead");
 		Tag header = new Tag("tr");
 		for (int j = 0; j < thead.size(); j++) {
-			// Tag theadTitle = new Tag("th",
-			// "class=header width=60 bgcolor=#996633 color=#ffffff");
-			Tag theadTitle = new Tag("th", "class=header width=60");
+		
+			String cTitle = thead.get(j).trim();
+			String colClass = "class=header"+j;
+			Tag theadTitle = new Tag("th", colClass);
 			theadTitle.add(thead.get(j));
 			header.add(theadTitle);
 		}
@@ -606,7 +683,21 @@ public class FindCertainExtension {
 		for (int i = 0; i < results.size(); i++) {
 			Tag tr = new Tag("tr", "align=center valign=center ");
 			Attributes trAttrs = tr.getAttributes();
-			for (int j = 0; j < 6; j++) {
+			trAttrs.add(new Attribute("class", "status"));
+//			String result = results.get(i);
+//			
+//			if (result.contains("Fail")) {
+//				trAttrs.add(new Attribute("class", "fail"));
+//				trAttrs.add(new Attribute("style=color:#FF6961"));
+//			} else if (result.contains("Pass")) {
+//				trAttrs.add(new Attribute("class", "pass"));
+//			} else if(result.contains("NA")){
+//				trAttrs.add(new Attribute("class", "notTested"));
+//			}
+//			else {
+//				trAttrs.add(new Attribute("class", "noresult"));
+//			}
+			for (int j = 0; j < thead.size(); j++) {
 				Tag cell = new Tag("td", "align=center vertical-align=middle");
 				Attributes attrs = cell.getAttributes();
 				if ((i % 2) == 0) {
@@ -628,19 +719,7 @@ public class FindCertainExtension {
 				cell.add("<br>\n");
 				cell.add("&nbsp;");
 				
-				String result = results.get(i);
-				
-				if (result.contains("Fail")) {
-					trAttrs.add(new Attribute("class", "fail"));
-					trAttrs.add(new Attribute("style=color:#FF6961"));
-				} else if (result.contains("Pass")) {
-					trAttrs.add(new Attribute("class", "pass"));
-				} else if(result.contains("NA")){
-					trAttrs.add(new Attribute("class", "notTested"));
-				}
-				else {
-					trAttrs.add(new Attribute("class", "noresult"));
-				}
+		
 
 				tr.add(cell);
 				
@@ -649,17 +728,7 @@ public class FindCertainExtension {
 			table.add(tr);
 		}
 		
-		Tag table2 = new Tag("table",
-				"id=countTable border=1 cellpadding=3 cellspacing=0 width=500");
-		Tag tr = new Tag("tr", "align=center valign=center ");
-		for(int i =0; i<4; i++){
-		Tag cell1 = new Tag("td", "align=center vertical-align=middle");
-		Attributes attrs1 = cell1.getAttributes();
-		attrs1.add("15");
-		}
-		
-		
-		main.add(table2);
+
 		main.add(table);
 		
 		html.add(head);
@@ -969,7 +1038,7 @@ public static void copyReportsToLogs(String source, String destination) throws I
 	dir.mkdir();
 
 	File sourceFile = new File(Zipname);
-	File destinationDir = new File(destination+ dateTime);
+	File destinationDir = new File(destination+"/"+ dateTime);
 	FileUtils.moveFileToDirectory(sourceFile, destinationDir, true);
 
 }

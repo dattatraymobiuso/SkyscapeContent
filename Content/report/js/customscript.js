@@ -5,13 +5,13 @@ $(document).on("click", "#show", function(){
 		$(".hide").removeClass("hide");
 
 		
-		$("tr.pass").each(function() {
+		$('.status:contains("Pass")').each(function() {
 			
 		$(this).addClass("hide");
 		
 	});
 	
-		$("tr.noresult").each(function() {
+		$('.status:contains("")').each(function() {
 			
 		$(this).addClass("hide");
 		
@@ -25,6 +25,7 @@ $(document).on("click", "#show", function(){
 })
 
 
+
 function passCount(list) {
     var result = [];
     $.each(list, function(i, e) {
@@ -33,6 +34,11 @@ function passCount(list) {
 	result.sort();
     return result;
 }
+
+
+
+	
+
 
 
 ;(function($) {
@@ -74,4 +80,41 @@ $(document).ready(function(){
       scrollTop: 0
    }, 2000);
  });
+$('.status:contains("Fail")').css('color', 'red');
+$('.status:contains("Pass")').css('color', 'green'); 
+$("#cellData").html(""
+		+ "<p>"
+		+ "<span class='status' status='P'>"
+		+ "<span class='number'>"
+		+ $('.status:contains("Pass")').size()
+		+ "</span>"
+		+ "<span class='captionNum'>Passed</span>" 
+		+ "</span>"
+		+ "<span>&nbsp;&nbsp;&nbsp;</span>"
+		
+		+ "<span class='status' status='F'>"
+		+ "<span class='number'>"
+		+ $('.status:contains("Fail")').size()
+		+ "</span>"
+		+ " <span class='captionNum'>Failed</span>" 
+		+ "</span>"
+		+ "<span>&nbsp;&nbsp;&nbsp;</span>"
+		
+		+ "<span class='status' status='S'>"
+		+ "<span class='number'>"
+		+ $('.status').size()
+		+ "</span>"
+		+ " <span class='captionNum'>Total</span>" 
+		+ "</span>"			
+		+ "<br>"
+		+ "<br>"
+		+ "<span class='number'>"
+		+  [(parseFloat([$('.status:contains("Fail")').size() /$('.status').size()]*100)).toFixed(2)]		
+	+ " %"
+		+ "</span>"
+		+ " <span class='captionNum'>Frequency of failure</span>" 
+		+ "</span>"
+		+ "</p>"
+		+ "</p>"
+		+ "");
 });
