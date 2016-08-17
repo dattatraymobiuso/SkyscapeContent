@@ -2,55 +2,41 @@
 <testng-results skipped="0" failed="0" total="3" passed="3">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="2697252" started-at="2016-06-23T14:53:48Z" finished-at="2016-06-23T15:38:46Z">
+  <suite name="Skyscape Content Test" duration-ms="1009482" started-at="2016-08-16T09:51:45Z" finished-at="2016-08-16T10:08:35Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="2697252" started-at="2016-06-23T14:53:48Z" finished-at="2016-06-23T15:38:46Z">
+    <test name="All href link validator" duration-ms="1009482" started-at="2016-08-16T09:51:45Z" finished-at="2016-08-16T10:08:35Z">
       <class name="validator.FindCertainExtension">
-        <test-method status="PASS" signature="downloadRequiredZip(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)[pri:0, instance:validator.FindCertainExtension@4de8b406]" name="downloadRequiredZip" duration-ms="214436" started-at="2016-06-23T20:23:49Z" description="Download zip content for" data-provider="getDownloadParameteres" finished-at="2016-06-23T20:27:24Z">
+        <test-method status="PASS" signature="downloadRequiredZip(java.lang.String, java.lang.String)[pri:0, instance:validator.FindCertainExtension@b97c004]" name="downloadRequiredZip" duration-ms="16665" started-at="2016-08-16T15:21:45Z" description="Download zip content for" data-provider="getDownloadParameteres" finished-at="2016-08-16T15:22:02Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[01]]>
+                <![CDATA[input/inputUrl.txt]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[tabers]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[sample]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[https://drive.skyscape.com/Skyscape/LoneStar]]>
-              </value>
-            </param>
-            <param index="4">
-              <value>
-                <![CDATA[B0B48221-042B-40EF-8897-3121CCC29317]]>
+                <![CDATA[http://download.skyscape.com/download/ota/lonestar/6FD6BE58-2B9F-4C12-B6ED-F8D85B49265F/familyrx.ed16.sample.zip
+]]>
               </value>
             </param>
           </params>
           <reporter-output>
           </reporter-output>
         </test-method> <!-- downloadRequiredZip -->
-        <test-method status="PASS" signature="getHTMLFiles()[pri:0, instance:validator.FindCertainExtension@4de8b406]" name="getHTMLFiles" duration-ms="3321" started-at="2016-06-23T20:27:24Z" description="Search all HTML files to test" depends-on-methods="validator.FindCertainExtension.downloadRequiredZip" finished-at="2016-06-23T20:27:27Z">
+        <test-method status="PASS" signature="getHTMLFiles()[pri:1, instance:validator.FindCertainExtension@b97c004]" name="getHTMLFiles" duration-ms="194" started-at="2016-08-16T15:22:02Z" description="Search all HTML files to test" finished-at="2016-08-16T15:22:02Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- getHTMLFiles -->
-        <test-method status="PASS" signature="getAndVerifyLinksFromHTML()[pri:0, instance:validator.FindCertainExtension@4de8b406]" name="getAndVerifyLinksFromHTML" duration-ms="2422256" started-at="2016-06-23T20:27:27Z" description="Checking all href links" depends-on-methods="validator.FindCertainExtension.downloadRequiredZip, validator.FindCertainExtension.getHTMLFiles" finished-at="2016-06-23T21:07:49Z">
+        <test-method status="PASS" signature="getAndVerifyLinksFromHTML()[pri:2, instance:validator.FindCertainExtension@b97c004]" name="getAndVerifyLinksFromHTML" duration-ms="378056" started-at="2016-08-16T15:22:02Z" description="Check all href links" finished-at="2016-08-16T15:28:20Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- getAndVerifyLinksFromHTML -->
-        <test-method status="PASS" signature="printResults()[pri:0, instance:validator.FindCertainExtension@4de8b406]" name="printResults" is-config="true" duration-ms="56265" started-at="2016-06-23T21:07:49Z" finished-at="2016-06-23T21:08:46Z">
+        <test-method status="PASS" signature="printResults()[pri:0, instance:validator.FindCertainExtension@b97c004]" name="printResults" is-config="true" duration-ms="614468" started-at="2016-08-16T15:28:20Z" finished-at="2016-08-16T15:38:35Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- printResults -->
       </class> <!-- validator.FindCertainExtension -->
-    </test> <!-- Default test -->
-  </suite> <!-- Default suite -->
+    </test> <!-- All href link validator -->
+  </suite> <!-- Skyscape Content Test -->
 </testng-results>

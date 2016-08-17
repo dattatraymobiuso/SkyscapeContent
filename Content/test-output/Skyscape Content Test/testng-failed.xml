@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite configfailurepolicy="continue" verbose="10" name="Failed suite [Skyscape Content Test]">
+  <test name="All href link validator(failed)">
+    <classes>
+      <class name="validator.FindCertainExtension">
+        <methods>
+          <include name="downloadRequiredZip" invocation-numbers="0"/>
+          <include name="printResults"/>
+        </methods>
+      </class> <!-- validator.FindCertainExtension -->
+    </classes>
+  </test> <!-- All href link validator(failed) -->
+</suite> <!-- Failed suite [Skyscape Content Test] -->

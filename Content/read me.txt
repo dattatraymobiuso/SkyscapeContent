@@ -1,0 +1,13 @@
+1. Install java on your machine
+2. Download and extract the project
+3. Now open .bat file do following changes.
+	a) Change the project folder location say cd C:\Users\Manoj\Desktop\Automation\SkysapeContent\Content
+	b) Change separator while setting classpath
+		for Windows use semicolon -> Example : java -cp lib\*;.\bin\ org.testng.TestNG testng.xml
+		for linux use colon -> Example: java -cp lib\*:.\bin\ org.testng.TestNG testng.xml
+	c) Save it
+4. Enter the zip file path in the inputUrl.txt file present in the input folder.	
+5. Now double click on .bat to run it.	
+	
+	
+	

@@ -1,17 +1,22 @@
 package util;
 
+import java.awt.Desktop;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -162,17 +167,19 @@ public class ReusableCode {
 		return 0;
 	}
 
-	public boolean getIDStatus(String linkHref, String file, Document doc) {
+	public boolean getIDStatus(String linkHref, String file, Document doc) throws IOException {
 		boolean status = false;
-		Element el;
+		Document doc2 = null;
+		
 		if (linkHref.startsWith("#")) {
 			// System.out.println(linkHref);
 			linkHref = removeChar(linkHref, '#');
 			// System.out.println(linkHref);
 		}
-
-		Document doc2 = Jsoup.parse(file, "UTF-8");
+		
+		doc2 = Jsoup.parse(new File(file), "UTF-8");
 		Elements e2 = doc2.getElementsByAttributeValue("id", linkHref);
+			
 		if (e2.size() >= 1) {
 			status = true;
 		} else {
@@ -184,17 +191,11 @@ public class ReusableCode {
 			}
 
 		}
-		el = doc.getElementById(linkHref);
-
-		if (el != null) {
-			status = true;
-		} else {
-			status = false;
-		}
+	
 		return status;
 	}
 
-	public boolean getPopupIDStatus(String linkHref, String file, Document doc) {
+	public boolean getPopupIDStatus(String linkHref, String file, Document doc) throws IOException {
 		boolean status = false;
 		Element el;
 		if (linkHref.startsWith("popup:#")) {
@@ -203,7 +204,7 @@ public class ReusableCode {
 			// System.out.println(linkHref);
 		}
 
-		Document doc2 = Jsoup.parse(file, "UTF-8");
+		Document doc2 = Jsoup.parse(new File(file), "UTF-8");
 		Elements e2 = doc2.getElementsByAttributeValue("id", linkHref);
 		if (e2.size() >= 1) {
 			status = true;
@@ -257,7 +258,7 @@ public class ReusableCode {
 			part2 = temp[1];
 
 		}
-		return url + "/" + part2;
+		return url + part2;
 	}
 
 	public String getExternalURLStatus(int responseCode) {
@@ -292,8 +293,8 @@ public class ReusableCode {
 
 	public Object[] iSHTMLFileExits(String htmlFile, String linkHref) {
 		boolean iSFileExist = false;
-		String status = "";
-		String error = "";
+		String status = "-";
+		String error = "-";
 		String parentDiretory = getParentDirectory(htmlFile);
 		String urlFilePath = getNewPath(parentDiretory, linkHref);
 		iSFileExist = checkFileExistance(new File(urlFilePath));
@@ -406,26 +407,60 @@ public class ReusableCode {
 		return temp[1];
 	}
 
+//	public boolean checkAnchorInFile(File file, String anchor)
+//			throws IOException {
+//
+//		boolean status = false;
+//		Document doc2 = Jsoup.parse(file, "UTF-8");
+//		
+//		Elements eId= doc2.getElementsByAttributeValueContaining("id", anchor);
+//		
+//		
+//		if (eId!=null) {
+//			status = true;
+//		} else {
+//			Elements eName = doc2.getElementsByAttributeValueContaining("name", anchor);
+//			
+//			
+//			if (eName!=null) {
+//				status = true;
+//			} else {
+//				status = false;
+//			}
+//		}
+//		return status;
+//
+//	}
+	
+	
 	public boolean checkAnchorInFile(File file, String anchor)
 			throws IOException {
-
+		
 		boolean status = false;
 		Document doc2 = Jsoup.parse(file, "UTF-8");
-		Elements e2 = doc2.getElementsByAttributeValue("id", anchor);
-		if (e2.size() >= 1) {
+		
+		Elements e1 = doc2.getElementsByAttributeValue("id", anchor);
+		
+		if((e1.size()>= 1)){
 			status = true;
-		} else {
-			Elements e3 = doc2.getElementsByAttributeValue("name", anchor);
-			if (e3.size() >= 1) {
+		}else{
+			
+			Elements e2 = doc2.getElementsByAttributeValue("name", anchor);
+		
+			if((e2.size()>= 1)){
 				status = true;
-			} else {
+			}else{
 				status = false;
 			}
-
-		}
+			}
+	
 		return status;
 
 	}
+	
+
+
+
 
 	public boolean checkFileExistance(File file) {
 		return file.exists();
@@ -491,6 +526,28 @@ public class ReusableCode {
 		return (tabArraylogin);
 	}
 
+	public String[][] getTableArrayFromText(String textFilePath)
+			throws Exception {
+		String[][] tabArray = null;
+
+		try (BufferedReader br = new BufferedReader(
+				new FileReader(textFilePath))) {
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+
+			while (line != null) {
+				sb.append(line);
+				sb.append(System.lineSeparator());
+				line = br.readLine();
+				break;
+			}
+			String everything = sb.toString();
+			tabArray = new String[][] { { textFilePath, everything } };
+		}
+
+		return (tabArray);
+	}
+
 	public void downloadTitleManifest(String url, File path, String name,
 			String manifestName) throws FileNotFoundException {
 
@@ -525,7 +582,7 @@ public class ReusableCode {
 			System.out.println(name + " downloaded successfully");
 	}
 
-	public static Object[] readInformationFromManifest(String path)
+	public Object[] readInformationFromManifest(String path)
 			throws UnsupportedEncodingException, FileNotFoundException,
 			IOException, ParseException {
 
@@ -533,14 +590,23 @@ public class ReusableCode {
 
 		JSONObject jsonObject = (JSONObject) jsonParser
 				.parse(new InputStreamReader(new FileInputStream(path), "UTF8"));
-		String shortName = (String) jsonObject.get("shortname").toString()
-				.trim();
-		String currentVersion = (String) jsonObject.get("current").toString()
-				.trim();
-		String sampleZipName = (String) jsonObject.get("sample").toString()
-				.trim();
-		String media = (String) jsonObject.get("mediaURL").toString().trim();
-
+		String shortName = "";
+		if (jsonObject.containsKey("shortname")) {
+			shortName = (String) jsonObject.get("shortname").toString().trim();
+		}
+		String currentVersion = "";
+		if (jsonObject.containsKey("current")) {
+			currentVersion = (String) jsonObject.get("current").toString()
+					.trim();
+		}
+		String sampleZipName = "";
+		if (jsonObject.containsKey("sample")) {
+			sampleZipName = (String) jsonObject.get("sample").toString().trim();
+		}
+		String media = "";
+		if (jsonObject.containsKey("mediaURL")) {
+			media = (String) jsonObject.get("mediaURL").toString().trim();
+		}
 		Object[] obj = new Object[] { shortName, currentVersion, sampleZipName,
 				media };
 		return obj;
@@ -656,25 +722,30 @@ public class ReusableCode {
 		Assert.assertTrue(path.exists(), "Unable to download " + manifestName);
 	}
 
-	public String formURL(String baseURL, String UUID, String fileName) {
+//	 public String formURL(String baseURL, String UUID, String fileName) {
+//	
+//	 return baseURL + "/" + UUID + "/" + fileName;
+//	 }
 
-		return baseURL + "/" + UUID + "/" + fileName;
+	public String formNewURL(String baseURL, String fileName) {
+
+		return baseURL + "/" + fileName;
 	}
 
 	public String getFilePath(String getFile) {
-		String temp[] = getFile.split(",");
+		String temp[] = getFile.split(":::");
 		return temp[0].trim();
 	}
 
 	public String getFileName(String getFile) {
-		String temp[] = getFile.split(",");
+		String temp[] = getFile.split(":::");
 		return temp[1].trim();
 	}
 
 	public Object[] getTestStatus(boolean file, boolean anchor) {
 
-		String status = "";
-		String error = "";
+		String status = "-";
+		String error = "-";
 		if (file == true) {
 			if (anchor == false) {
 				error = "Anchor not found";
@@ -695,7 +766,7 @@ public class ReusableCode {
 
 	public Object getAndAppendResult(String result, int j) {
 		String data;
-		String[] split = result.split(",");
+		String[] split = result.split(":::");
 		String key = split[j];
 		String[] value = key.split("::");
 		if (value.length > 1) {
@@ -722,5 +793,48 @@ public class ReusableCode {
 			return false;
 		}
 	}
+	public String getTitle(String title) {
+		
+		String pageTitle = "-";
+		if(!title.isEmpty()){
+			pageTitle = title;
+		}
+		
+		return pageTitle;
+	}
+
+	public void openInBrowser(String uri) throws URISyntaxException {
+		
+			File htmlFile = new File(uri);
+	        if(Desktop.isDesktopSupported()){
+	            Desktop desktop = Desktop.getDesktop();
+	            try {
+	                desktop.browse(htmlFile.toURI());
+	            } catch (IOException e) {
+	                // TODO Auto-generated catch block
+	                e.printStackTrace();
+	            }
+	        }else{
+	            Runtime runtime = Runtime.getRuntime();
+	            try {
+	                runtime.exec("xdg-open " + uri);
+	            } catch (IOException e) {
+	                // TODO Auto-generated catch block
+	                e.printStackTrace();
+	            }
+	        }
+		
+	}
+
+	public String getTopicName(Element link) {
+		String temp="-";
+		if(link!=null){
+			if(!link.text().isEmpty())
+			temp = link.text();
+		}
+		
+		return temp;
+	}
+
 
 }

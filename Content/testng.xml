@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite configfailurepolicy="continue" verbose="10" name="Skyscape Content Test" sequential="true">
+
+	<test name="All href link validator">
+		<classes>
+			<class name="validator.FindCertainExtension" />
+		</classes>
+	</test> 
+</suite>

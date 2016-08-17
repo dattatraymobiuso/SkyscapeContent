@@ -36,11 +36,7 @@ function passCount(list) {
 }
 
 
-
-	
-
-
-
+/*
 ;(function($) {
    $.fn.fixMe = function() {
       return this.each(function() {
@@ -71,22 +67,28 @@ function passCount(list) {
          init();
       });
    };
-})(jQuery);
+})(jQuery);*/
 
-$(document).ready(function(){
-   $("table").fixMe();
+
+$(document).ready(function() {
+	$(".se-pre-con").fadeOut("slow");
+     $('#result').dataTable({
+        "aLengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+        "iDisplayLength": 5
+    });
+    
+/*$("table").fixMe();
    $(".up").click(function() {
       $('html, body').animate({
       scrollTop: 0
    }, 2000);
- });
-$('.status:contains("Fail")').css('color', 'red');
-$('.status:contains("Pass")').css('color', 'green'); 
-$("#cellData").html(""
+ });*/
+
+$("#onelineright").html(""
 		+ "<p>"
 		+ "<span class='status' status='P'>"
 		+ "<span class='number'>"
-		+ $('.status:contains("Pass")').size()
+		+ $('#result').DataTable().rows('.statuspass').data().length
 		+ "</span>"
 		+ "<span class='captionNum'>Passed</span>" 
 		+ "</span>"
@@ -94,7 +96,7 @@ $("#cellData").html(""
 		
 		+ "<span class='status' status='F'>"
 		+ "<span class='number'>"
-		+ $('.status:contains("Fail")').size()
+		+ $('#result').DataTable().rows('.statusfail').data().length
 		+ "</span>"
 		+ " <span class='captionNum'>Failed</span>" 
 		+ "</span>"
@@ -102,14 +104,14 @@ $("#cellData").html(""
 		
 		+ "<span class='status' status='S'>"
 		+ "<span class='number'>"
-		+ $('.status').size()
+		+ [$('#result').DataTable().rows('.statusfail').data().length + $('#result').DataTable().rows('.statuspass').data().length]
 		+ "</span>"
 		+ " <span class='captionNum'>Total</span>" 
 		+ "</span>"			
 		+ "<br>"
 		+ "<br>"
 		+ "<span class='number'>"
-		+  [(parseFloat([$('.status:contains("Fail")').size() /$('.status').size()]*100)).toFixed(2)]		
+		+  [(parseFloat([$('#result').DataTable().rows('.statusfail').data().length] / [$('#result').DataTable().rows('.statusfail').data().length + $('#result').DataTable().rows('.statuspass').data().length])*100).toFixed(2)]		
 	+ " %"
 		+ "</span>"
 		+ " <span class='captionNum'>Frequency of failure</span>" 
@@ -117,4 +119,5 @@ $("#cellData").html(""
 		+ "</p>"
 		+ "</p>"
 		+ "");
+
 });

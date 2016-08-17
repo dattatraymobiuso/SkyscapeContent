@@ -52,7 +52,7 @@ A:active { color: red; }
 
 
 body{
-  font:1.2em normal Arial,sans-serif;
+  font:1.0em normal Arial,sans-serif;
   color:#34495E;
   
 }
@@ -67,7 +67,8 @@ h1{
 
 .container{
  width:100%;
-  margin:auto;
+margin:auto;
+
 }
 
 table{
@@ -94,8 +95,8 @@ table{
 }
 
 thead{
-  color:white;
-  background : #1ABC9C
+  color:white! important ;
+  background : #1ABC9C! important;
 }
 
 th,td{
@@ -107,13 +108,13 @@ th,td{
 tbody tr:nth-child(even){
   background:#ECF0F1;
 }
-
+/*
 tbody tr:hover{
 background:#ceebfd ! important ;
 color:#0000FF !important ;
 font-weight: bold;
 }
-
+*/
 .fixed{
   top:0;
   position:fixed;
@@ -131,38 +132,40 @@ font-weight: bold;
   cursor:pointer;
 }
 .header0{
-width: 32%;	
+width: 25%;	
 }
 .header1{
-width: 7%;		
+width: 6%;		
 }
 .header2{
-width: 32%;	
+width: 13%;		
 }
 .header3{
-	width: 8%;	
+width: 26%;	
 }
 .header4{
-	width: 7%;	
+	width: 8%;	
 }
 .header5{
-	width: 5%;	
+	width: 7%;	
 }
 .header6{
+	width: 6%;	
+}
+.header7{
 	width: 9%;	
 }
 
 #headname{
 float:left;
-margin-left:600px;
+margin-left:35%;
 
 }
 
 #cellData{
 float:right;
 }
-
-#statusbutton{
+.statusbutton{
 float:center;
 }
 
@@ -208,3 +211,51 @@ float:center;
 		border-color: #ECF9F2;
 		cursor:default;
 	}
+
+  .main{
+  
+   
+   width:100%;
+}
+#onelineleft {
+ float: left;
+  width: 340px; 
+  margin-right: 40px;
+
+}
+
+#onelinecenter {
+ float: left;
+width: 340px; 
+margin-left: 38%;
+}
+
+#onelineright {
+
+ 
+ float: left;
+width: 340px;
+margin-left: 13%;
+}
+
+.statusfail{
+color: #CC0000;
+}
+
+.statuspass{
+  color: #04B404;
+  
+}
+
+
+.no-js #loader { display: none;  }
+.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+.se-pre-con {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url(../images/loader-64x/Preloader_2.gif) center no-repeat #fff;
+}
