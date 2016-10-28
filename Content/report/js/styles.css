@@ -259,3 +259,14 @@ color: #CC0000;
   z-index: 9999;
   background: url(../images/loader-64x/Preloader_2.gif) center no-repeat #fff;
 }
+
+#d0, #d1, #d2,#d3,#d4,#d5,#d6, #d7, #d9{
+cursor:pointer;
+color:blue;
+text-decoration:underline;
+
+}
+
+.hide {
+    display: none;
+  }

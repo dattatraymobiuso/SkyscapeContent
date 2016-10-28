@@ -57,7 +57,7 @@ import util.Attributes;
 import util.ReusableCode;
 import util.Tag;
 
-public class FindCertainExtension {
+public class ImageChecker {
 
 	public static List<String> htmlFileList = null;
 	public static List<String> results = null;
@@ -90,14 +90,16 @@ public class FindCertainExtension {
 	static String fullProductZipUrl;
 	static String fullProductZipPath;
 	static String mediaUrl;
+	static String allResults = "All Results";
 	static String extLink = "External link";
 	static String anchoronsamehtml = "Anchor On Same HTML";
-	static String pointsOtherHTML = "Points Other HTML";
+	static String pointsOtherHTML = "Cross referance HTML";
 	static String pointsOtherHTMLAnchor = "Points Other HTML Anchor";
-	static String artinart="artinart";
-	static String popup="Pop-up";
-	static String nottested="Not Tested";
-	static String total="Total";
+	static String image = "Image";
+	static String artinart = "artinart";
+	static String popup = "Pop-up";
+	static String nottested = "Not Tested";
+	static String total = "Total Fail";
 	static HashMap<String, Element> uniqueDate;
 	// static String mediaUrl =
 	// "http://download.skyscape.com/download/tabers22/1.0/";
@@ -113,13 +115,13 @@ public class FindCertainExtension {
 		return (retObjArrlogin);
 	}
 
-//	 @Test(description = "Download zip content for", dataProvider =
-//	 "getDownloadParameteres", priority=0)
+	// @Test(description = "Download zip content for", dataProvider =
+	// "getDownloadParameteres", priority=0)
 	public void downloadRequiredZip(String filePath, String url)
 			throws Exception {
 
 		Assert.assertTrue(!url.isEmpty(),
-				"Please url in the text file to download zip");
+				"Please provide url in the text file to download zip");
 
 		String productName;
 
@@ -184,16 +186,17 @@ public class FindCertainExtension {
 		thead.add(protocol_status);
 		thead.add(result);
 		thead.add(comment);
-		
+
+		theadStatus.add(allResults);
 		theadStatus.add(extLink);
 		theadStatus.add(anchoronsamehtml);
 		theadStatus.add(pointsOtherHTML);
 		theadStatus.add(pointsOtherHTMLAnchor);
+		theadStatus.add(image);
 		theadStatus.add(artinart);
 		theadStatus.add(popup);
 		theadStatus.add(nottested);
 		theadStatus.add(total);
-		
 
 		File dir = new File(fileSource);
 		String[] extensions = new String[] { "html", "htm" };
@@ -235,21 +238,29 @@ public class FindCertainExtension {
 			doc = Jsoup.parse(input, "UTF-8");
 			Element titleLink = doc.select("title").first();
 			String title = func.getTitle(titleLink.text());
-			Elements links = doc.select("a[href]");
+			Elements links = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
+			Elements htmllinks = doc.select("a[href]");
+			links.addAll(htmllinks);
 			// System.out.println("Element :"+links.size());
 			if (links.size() != 0) {
 				for (Element link : links) {
-					String linkHref = link.attr("href");
-					boolean iSLinkDuplicate = uniqueDate.containsKey(linkHref);					
-					if (!linkHref.isEmpty()&& iSLinkDuplicate == false) {
+					String linkHref = null;
+					if (link.hasAttr("href")) {
+						linkHref = link.attr("href");
+					} else if (link.hasAttr("src")) {
+						linkHref = link.attr("src");
+					}
+
+					boolean iSLinkDuplicate = uniqueDate.containsKey(linkHref);
+					if (!linkHref.isEmpty() && iSLinkDuplicate == false) {
 						// System.out.println(htmlFile+"::"+":"+linkHref);
 						boolean noProtocol = false;
-						System.out.println(htmlSplittedPath +" :: "+ linkHref);
-						if(linkHref.startsWith("../#st3045")){
-							System.out.println("found");
-						}
+						System.out
+								.println(htmlSplittedPath + " :: " + linkHref);
+
 						uniqueDate.put(linkHref, link);
 						String topic = func.getTopicName(link);
+					if(!linkHref.contains("\\")){
 						if (linkHref.startsWith("http")
 								|| linkHref.startsWith("https")
 								|| linkHref.startsWith("www")) {
@@ -303,17 +314,17 @@ public class FindCertainExtension {
 									+ ":::" + pageTitle + "::" + title + ":::"
 									+ topic_name + "::" + topic + ":::"
 									+ anchor + "::" + linkHref + ":::"
-									+ anchor_type + "::"
-									+ anchoronsamehtml + ":::"
-									+ "protocol_status" + "::" + "NA" + ":::"
-									+ "result" + "::" + result + ":::"
+									+ anchor_type + "::" + anchoronsamehtml
+									+ ":::" + "protocol_status" + "::" + "NA"
+									+ ":::" + "result" + "::" + result + ":::"
 									+ "error" + "::" + error);
 							// Pushing status as html file, anchor, anchor_type,
 							// protocol_status, result, error
 
 						} else if ((linkHref.startsWith("../"))
 								&& ((linkHref.endsWith(".htm")))
-								|| (linkHref.endsWith(".html"))&&(!linkHref.contains("blocked.html"))) {
+								|| (linkHref.endsWith(".html"))
+								&& (!linkHref.contains("blocked.html"))) {
 
 							Object[] status = func.iSHTMLFileExits(htmlFile,
 									linkHref);
@@ -333,25 +344,46 @@ public class FindCertainExtension {
 							// protocol_status, result, error
 
 						} else if ((linkHref.startsWith("../"))) {
-							
-							boolean isFileExist = func
-									.checkFileExistance(input);
-							boolean isAnchorExist = func
-									.iSAnchorInOtherHTMLFileExits(htmlFile,
-											linkHref);
-							Object[] status = func.getTestStatus(isFileExist,
-									isAnchorExist);
-							String result = (String) status[0];
-							String error = (String) status[1];
-							results.add(file + "::" + htmlSplittedPath + ":::"
-									+ pageTitle + "::" + title + ":::"
-									+ topic_name + "::" + topic + ":::"
-									+ anchor + "::" + linkHref + ":::"
-									+ anchor_type + "::"
-									+ pointsOtherHTMLAnchor + ":::"
-									+ "protocol_status" + "::" + "NA" + ":::"
-									+ "result" + "::" + result + ":::"
-									+ "error" + "::" + error);
+
+							int count = func.numberOfOccurrences(linkHref,
+									"../");
+							if (count == 1) {
+								boolean isFileExist = func
+										.checkFileExistance(input);
+								boolean isAnchorExist = func
+										.iSAnchorInOtherHTMLFileExits(htmlFile,
+												linkHref);
+								Object[] status = func.getTestStatus(
+										isFileExist, isAnchorExist);
+								String result = (String) status[0];
+								String error = (String) status[1];
+								results.add(file + "::" + htmlSplittedPath
+										+ ":::" + pageTitle + "::" + title
+										+ ":::" + topic_name + "::" + topic
+										+ ":::" + anchor + "::" + linkHref
+										+ ":::" + anchor_type + "::"
+										+ pointsOtherHTMLAnchor + ":::"
+										+ "protocol_status" + "::" + "NA"
+										+ ":::" + "result" + "::" + result
+										+ ":::" + "error" + "::" + error);
+							} else if (count == 2) {
+
+								boolean imageStatus = func.iSImageExits(
+										htmlFile, linkHref);
+								Object[] status = func
+										.getTestStatus(imageStatus);
+								String result = (String) status[0];
+								String error = (String) status[1];
+								results.add(file + "::" + htmlSplittedPath
+										+ ":::" + pageTitle + "::" + title
+										+ ":::" + topic_name + "::" + topic
+										+ ":::" + anchor + "::" + linkHref
+										+ ":::" + anchor_type + "::" + image
+										+ ":::" + "protocol_status" + "::"
+										+ "NA" + ":::" + "result" + "::"
+										+ result + ":::" + "error" + "::"
+										+ error);
+							}
 
 							// Pushing status as html file, anchor, anchor_type,
 							// protocol_status, result, error
@@ -367,32 +399,65 @@ public class FindCertainExtension {
 									+ pageTitle + "::" + title + ":::"
 									+ topic_name + "::" + topic + ":::"
 									+ anchor + "::" + linkHref + ":::"
-									+ anchor_type + "::" + artinart
-									+ ":::" + "protocol_status" + "::" + "NA"
-									+ ":::" + "result" + "::"
+									+ anchor_type + "::" + artinart + ":::"
+									+ "protocol_status" + "::" + "NA" + ":::"
+									+ "result" + "::"
 									+ func.getExternalURLStatus(responseCode)
 									+ ":::" + "error" + "::"
 									+ func.getResponseCodeIfFail(responseCode));
 
 						} else if (linkHref.trim().startsWith("popup:")) {
+							int count = 0;
 							boolean isFileExist = func
 									.checkFileExistance(input);
 							String anchorId = func
 									.getProperPopupAnchor(linkHref);
-							boolean iSAnchorExist = func.getIDStatus(anchorId,
-									htmlFile, doc);
-							Object[] status = func.getTestStatus(isFileExist,
-									iSAnchorExist);
-							String result = (String) status[0];
-							String error = (String) status[1];
-							results.add(file + "::" + htmlSplittedPath + ":::"
-									+ pageTitle + "::" + title + ":::"
-									+ topic_name + "::" + topic + ":::"
-									+ anchor + "::" + linkHref + ":::"
-									+ anchor_type + "::" + popup + ":::"
-									+ "protocol_status" + "::" + "NA" + ":::"
-									+ result + "::" + result + ":::" + "error"
-									+ "::" + error);
+							count = func.numberOfOccurrences(linkHref, "../");
+							if (count == 0) {
+								boolean iSAnchorExist = func.getIDStatus(
+										anchorId, htmlFile, doc);
+								Object[] status = func.getTestStatus(
+										isFileExist, iSAnchorExist);
+								String result = (String) status[0];
+								String error = (String) status[1];
+								results.add(file + "::" + htmlSplittedPath
+										+ ":::" + pageTitle + "::" + title
+										+ ":::" + topic_name + "::" + topic
+										+ ":::" + anchor + "::" + linkHref
+										+ ":::" + anchor_type + "::" + popup
+										+ ":::" + "protocol_status" + "::"
+										+ "NA" + ":::" + result + "::" + result
+										+ ":::" + "error" + "::" + error);
+							} else {
+								String result;
+								String error;
+								if (!((anchorId.endsWith(".htm")) || (anchorId
+										.endsWith(".html")))) {
+									boolean isAnchorExist = func
+											.iSAnchorInOtherHTMLFileExits(
+													htmlFile, anchorId);
+									Object[] status = func.getTestStatus(
+											isFileExist, isAnchorExist);
+									result = (String) status[0];
+									error = (String) status[1];
+								} else {
+
+									Object[] status = func.iSHTMLFileExits(
+											htmlFile, anchorId);
+									result = (String) status[0];
+									error = (String) status[1];
+								}
+								results.add(file + "::" + htmlSplittedPath
+										+ ":::" + pageTitle + "::" + title
+										+ ":::" + topic_name + "::" + topic
+										+ ":::" + anchor + "::" + linkHref
+										+ ":::" + anchor_type + "::" + popup
+										+ ":::" + "protocol_status" + "::"
+										+ "NA" + ":::" + "result" + "::"
+										+ result + ":::" + "error" + "::"
+										+ error);
+
+							}
 
 						} else {
 							results.add(file + "::" + htmlSplittedPath + ":::"
@@ -407,7 +472,17 @@ public class FindCertainExtension {
 							// protocol_status, result, error
 
 						}
-
+					}else{
+						results.add(file + "::" + htmlSplittedPath + ":::"
+								+ pageTitle + "::" + title + ":::"
+								+ topic_name + "::" + topic + ":::"
+								+ anchor + "::" + linkHref + ":::"
+								+ anchor_type + "::" + "Path Issue(Backslash)" + ":::"
+								+ "protocol_status" + "::" + "NA" + ":::"
+								+ "result" + "::" + "Fail" + ":::" + "error"
+								+ "::" + "");
+						
+					}
 					}
 					// else {
 					// results.add(file + "::" + "" + htmlSplittedPath + ":::"
@@ -471,14 +546,14 @@ public class FindCertainExtension {
 		Tag main = new Tag("div", "align=center");
 		body.add(main);
 		Tag headStatus = new Tag("div", "id=headStatus");
-//		Tag headname = new Tag("div", "id=headname");
-//		Tag h2 = new Tag("h2");
-//		h2.add("Consolidated report of " + product);
-//		headname.add(h2);
-//		Tag p = new Tag("h3");
-//		p.add("Results for all href links");
-//		headname.add(p);
-//		headStatus.add(headname);
+		// Tag headname = new Tag("div", "id=headname");
+		// Tag h2 = new Tag("h2");
+		// h2.add("Consolidated report of " + product);
+		// headname.add(h2);
+		// Tag p = new Tag("h3");
+		// p.add("Results for all href links");
+		// headname.add(p);
+		// headStatus.add(headname);
 		Tag table0 = new Tag("table",
 				"id=stats border=1 cellpadding=3 cellspacing=0");
 		Tag theadTag0 = new Tag("thead");
@@ -487,7 +562,8 @@ public class FindCertainExtension {
 			String cTitle = theadStatus.get(j).trim();
 			String colClass = "class=head" + j;
 			Tag theadTitle = new Tag("th", colClass);
-			theadTitle.add(theadStatus.get(j));
+			String value = theadStatus.get(j);		
+			theadTitle.add(value);
 			header0.add(theadTitle);
 		}
 		theadTag0.add(header0);
@@ -506,7 +582,7 @@ public class FindCertainExtension {
 		tBodyTag0.add(tr0);
 		table0.add(tBodyTag0);
 		main.add(table0);
-		////////
+		// //////
 		Tag statusdiv = new Tag("div", "id=onelineright");
 		headStatus.add(statusdiv);
 		main.add(headStatus);
@@ -534,33 +610,46 @@ public class FindCertainExtension {
 			String result = results.get(i);
 			tr = new Tag("tr", "align=center valign=center ");
 			Attributes trAttrs = tr.getAttributes();
-			String statusclass="";
+			String statusclass = "";
 			if (result.contains("Fail")) {
 				statusclass = "statusfail";
-			//	trAttrs.add(new Attribute("class", "statusfail"));
+				// trAttrs.add(new Attribute("class", "statusfail"));
 			} else if (result.contains("Pass")) {
 				statusclass = "statuspass";
-			//	trAttrs.add(new Attribute("class", "statuspass"));
+				// trAttrs.add(new Attribute("class", "statuspass"));
 			}
-			
-			if (result.contains(extLink)) {
-				trAttrs.add(new Attribute("class", statusclass+ " v0 " + statusclass+"v0"));
+			if (result.contains(allResults)) {
+				trAttrs.add(new Attribute("class", statusclass + " v0 "
+						+ statusclass + "v0"));
+			} else if (result.contains(extLink)) {
+				trAttrs.add(new Attribute("class", statusclass + " v1 "
+						+ statusclass + "v1"));
 			} else if (result.contains(anchoronsamehtml)) {
-				trAttrs.add(new Attribute("class", statusclass+" v1 "+ statusclass+"v1"));
-			} else if  (result.contains(pointsOtherHTML)) {
-				trAttrs.add(new Attribute("class", statusclass+" v2 "+ statusclass+"v2"));
-			} else if(result.contains(pointsOtherHTMLAnchor)) {
-				trAttrs.add(new Attribute("class", statusclass+" v3 "+ statusclass+"v3"));
-			}else if(result.contains(artinart)) {
-				trAttrs.add(new Attribute("class", statusclass+" v4 "+ statusclass+"v4"));
-			}else if(result.contains(popup)) {
-				trAttrs.add(new Attribute("class", statusclass+" v5 "+ statusclass+"v5"));
-			}else if(result.contains(nottested)) {
-				trAttrs.add(new Attribute("class", statusclass+" v6 "+ statusclass+"v6"));
-			}else if(result.contains(total)) {
-				trAttrs.add(new Attribute("class", statusclass+" v7 "+ statusclass+"v7"));
+				trAttrs.add(new Attribute("class", statusclass + " v2 "
+						+ statusclass + "v2"));
+			} else if (result.contains(pointsOtherHTML)) {
+				trAttrs.add(new Attribute("class", statusclass + " v3 "
+						+ statusclass + "v3"));
+			} else if (result.contains(pointsOtherHTMLAnchor)) {
+				trAttrs.add(new Attribute("class", statusclass + " v4 "
+						+ statusclass + "v4"));
+			} else if (result.contains(image)) {
+				trAttrs.add(new Attribute("class", statusclass + " v5 "
+						+ statusclass + "v5"));
+			} else if (result.contains(artinart)) {
+				trAttrs.add(new Attribute("class", statusclass + " v6 "
+						+ statusclass + "v6"));
+			} else if (result.contains(popup)) {
+				trAttrs.add(new Attribute("class", statusclass + " v7 "
+						+ statusclass + "v7"));
+			} else if (result.contains(nottested)) {
+				trAttrs.add(new Attribute("class", statusclass + " v8 "
+						+ statusclass + "v8"));
+			} else if (result.contains(total)) {
+				trAttrs.add(new Attribute("class", statusclass + " v9 "
+						+ statusclass + "v9"));
 			}
-			
+
 			for (int j = 0; j < thead.size(); j++) {
 				Tag cell = new Tag("td", "align=center vertical-align=middle");
 				Attributes attrs = cell.getAttributes();
@@ -593,7 +682,7 @@ public class FindCertainExtension {
 
 		html.add(head);
 		html.add(body);
-//		System.out.println(html);
+		// System.out.println(html);
 
 		FileWriter writer = new FileWriter(htmlFileName);
 		writer.write(html.toString());
